@@ -1,0 +1,8 @@
+image,object_id,error_type,reviewer,note
+img_003.jpg,,khong,Le Tien Binh,"xe ba gác #1 + người trên xe có box riêng; #10 truck 0.25 ở xa mờ, không xác định được nên không tính lỗi"
+img_006.jpg,78,thua,Le Tien Binh,"hàng xe máy đỗ: box #78 (0.10) lồng trong các box xe máy khác, trùng vật"
+img_014.jpg,,khong,Le Tien Binh,"người lái và xe máy đều có box riêng; người gánh hàng #164 đúng"
+img_031.jpg,537,thua,Le Tien Binh,"một chiếc xe đạp bị tách thành 2 box (#537 + #534)"
+img_031.jpg,534,sai_vi_tri_kich_thuoc,Le Tien Binh,"box xe đạp chỉ ôm nửa phải, thiếu bánh sau và giỏ hàng gắn cố định (guideline mục 5: box xe ôm cả giỏ)"
+img_031.jpg,535,sai_vi_tri_kich_thuoc,Le Tien Binh,"box người dừng ở ngang hông, phần chân nhìn thấy sau xe bị cắt"
+img_035.jpg,629,thua,Le Tien Binh,"box person #629 (0.36) trùng người đã có box #634 (0.93)"
