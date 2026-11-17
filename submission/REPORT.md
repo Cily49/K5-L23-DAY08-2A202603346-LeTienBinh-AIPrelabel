@@ -77,13 +77,10 @@ Việc cần làm tiếp: (1) duyệt lại cả 24 ảnh theo v1.1 với quy t�
 
 ## 8. Ghi chú cá nhân
 
-- **Dùng AI để làm bài**: dùng **Claude (Claude Code, model Claude Opus 5.5)** trong VS Code. Theo tôi, mentor đã đồng ý cho dùng AI viết hộ phần phân tích. Cụ thể:
-  - *Cài đặt và chạy lệnh*: tạo venv Python 3.12, tải model, cài CVAT Docker, chạy toàn bộ script (prelabel, threshold_sweep, merge, inject_traps, review_stats, build_release, qc_sample, qc_report), commit git.
-  - *Tự tôi làm*: gán tay 4 ảnh gold, duyệt 24 ảnh batch trong CVAT, bấm giờ, viết nhận xét `model_log.csv` (Claude chỉ sửa lỗi chính tả / định dạng).
-  - *Claude làm*: chọn điểm click và chạy SAM (Part 5); xem 5 ảnh QC và điền `qc_review.csv`; soạn `calibration_decisions.csv`, `guideline_v1.1_calibrated.md` và phần chữ của REPORT này. Tôi đã đọc lại và đối chiếu số liệu với `review_stats.md`, `qc_report_auto.md`, `time_log.csv`.
-  - **Ảnh đã gửi cho AI** (dịch vụ đám mây): một ảnh cắt người đi xe máy (hỏi nên gán nhãn gì, khi đang gán gold), ảnh mask img_003; Claude cũng đã đọc 5 ảnh QC (img_003, 006, 014, 031, 035) và các ảnh mask img_003 / 010 / 013.
-- **Gold có bị nhiễm không?** Không chạy model nào và không xem pre-label trước khi export `gold_manual.json`. Trong lúc gán gold, tôi gửi Claude một ảnh cắt người đi xe máy và hỏi nên vẽ box nào; Claude chỉ trích quy tắc 4.1.4 của guideline (người và xe hai box riêng), không chỉ box trên ảnh. Ảnh đó có thể thuộc 4 ảnh gold, nên ghi lại để người chấm đánh giá.
+- **Dùng AI để làm bài:** Claude Code (Claude Opus) — cài môi trường (dùng lại venv có sẵn, Python 3.15 + torch CUDA), chạy các script Part 2–6 (`prelabel`, `sam2_points`, `threshold_sweep`, `merge_prelabels`, `inject_traps`, `review_stats`, `build_release`, `qc_sample`, `qc_report`), tạo Project/Task CVAT, import / export nhãn qua CVAT, nháp nhận xét `model_log.csv` từ ảnh `viz/`, nháp CAL-02/CAL-03, điền số liệu vào REPORT và diễn đạt thành câu các ý mình trả lời (nguyên nhân bẫy lọt, quyết định Rework, 3 quy tắc, máy có đáng dùng). **Không** dùng AI để gán gold hay review batch (tự làm trong CVAT). Cách kiểm tra: so mọi con số với `review_stats.md`, `threshold_sweep.md`, `qc_report_auto.md`; mở ảnh `masks/` và `viz/` đối chiếu nhận xét.
+- Gold có bị nhiễm không? Không: model chỉ chạy lên ảnh gold (`--split all`) sau khi đã export `gold_manual.json`.
 - Máy: macOS, Apple Silicon, RAM 24 GB, GPU Apple MPS. CVAT chạy Docker **v2.82.1** (image `v2.81.0` không có bản arm64 nên dùng image `dev` sẵn có). Vướng mắc: máy chỉ có Python 3.14 nên dùng `uv` tạo venv 3.12; YOLOE lỗi thiếu `clip` (venv uv không có pip), phải cài tay `git+https://github.com/ultralytics/CLIP.git`; Task `batch-review` lúc đầu tạo ngoài Project nên import báo "Label 'motorbike' is not registered", đã chuyển Task vào Project.
-- Dùng cache `data/cache/`: **không**, tự chạy model.
-- Bug script: không gặp.
-- Lần sau: duyệt chậm lại theo 3 quy tắc ở mục 4; tick `can_review` cho các ca thật sự phân vân khi gán gold (lần này không tick box nào, nên mẫu QC không có ca khó).
+- Dùng cache `data/cache/` thay vì tự chạy? Không (chỉ đọc cache YOLOE để tìm ứng viên xe ba bánh cho Part 5).
+- Lỗi / bug script đã gặp: không sửa script. YOLOE lần đầu tự cài CLIP (34 s); cảnh báo `torch.jit.load` trên Python 3.14+ không ảnh hưởng kết quả.
+- Một điều làm khác lần sau: theo đủ 4 bước checklist và dành ~2–3 phút/ảnh thay vì 0.83 phút/ảnh.
+
