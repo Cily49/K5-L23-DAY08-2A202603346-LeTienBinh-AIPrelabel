@@ -4,7 +4,7 @@
 - MSHV: 2A202603346
 - Lớp (L2 / L3 / khác): L2
 - Tài khoản GitHub: Cily49
-- Repo bài nộp (URL): https://github.com/Cily49/K5-L2-Day08-LeTienBinh-2A202603346-AI-Assisted-Labeling
+- Repo bài nộp (URL): https://github.com/Cily49/K5-L23-DAY08-2A202603346-LeTienBinh-AIPrelabel
 - Commit chốt bài (hash): 96a34b7
 - Máy: macOS (Apple Silicon, RAM 24 GB), GPU Apple MPS
 - CVAT (Docker): v2.82.1 (image dev; v2.81.0 không có bản arm64)
