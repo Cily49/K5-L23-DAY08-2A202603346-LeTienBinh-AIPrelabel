@@ -79,7 +79,7 @@ Việc cần làm tiếp: (1) duyệt lại cả 24 ảnh theo v1.1 với quy t�
 
 ## 8. Ghi chú cá nhân
 
-- **Dùng AI để làm bài:** Claude Code (Claude Opus 5.5) trong VS Code. Theo tôi, mentor đã đồng ý cho dùng AI viết hộ phần phân tích.
+- **Dùng AI để làm bài:** Claude Code (Claude Opus 5.5) trong VS Code.
   - *Claude làm:* tạo venv Python 3.12 bằng `uv`, tải model, cài CVAT Docker; chạy các script Part 2–6 (`prelabel`, `threshold_sweep`, `merge_prelabels`, `inject_traps`, `review_stats`, `sam2_points`, `build_release`, `qc_sample`, `qc_report`, `check_submission`); commit / push git; chọn điểm click SAM (Part 5); xem 5 ảnh QC và điền `qc_review.csv`; soạn `calibration_decisions.csv`, `guideline_v1.1_calibrated.md` và phần chữ của REPORT.
   - *Tôi tự làm:* gán tay 4 ảnh gold, review 24 ảnh batch trong CVAT (cả lượt 1 và lượt sửa round2), bấm giờ, viết nhận xét `model_log.csv` (Claude chỉ sửa lỗi chính tả / định dạng).
   - *Ảnh đã gửi cho AI (dịch vụ đám mây):* 1 ảnh cắt người đi xe máy (khi đang gán gold), ảnh mask img_003, ảnh CVAT của img_022 (sau khi export, hỏi về bẫy); Claude cũng đọc 5 ảnh QC (img_003, 006, 014, 031, 035) và ảnh mask img_003 / 010 / 013.
