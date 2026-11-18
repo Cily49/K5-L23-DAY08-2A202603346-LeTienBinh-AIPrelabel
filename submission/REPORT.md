@@ -35,6 +35,8 @@
 - Bắt bẫy **7/12 = 58.3%** (KTC 95%: 32–81%), dưới ngưỡng 80%. Theo loại: missing 3/3, extra 2/3, wrong_class 1/3, loose 1/3. Lọt: img_029 và img_022 (wrong_class), img_005 và img_033 (loose), img_025 (extra).
 - Lọt chủ yếu ở **bước 3 (sai lớp) và bước 4 (box lỏng)** của checklist. Tôi duyệt 24 ảnh trong 20 phút (0.83 phút/ảnh, khuyến nghị ~3 phút/ảnh): đủ thời gian để quét tìm vật bị sót (bước 1, bắt 3/3) nhưng không phóng to kiểm lớp và viền từng box. img_005 và img_029 nằm trong nhóm 6 ảnh dày xe máy, nơi box lỏng / sai lớp dễ chìm giữa hàng chục box đúng.
 - **Accepted 90.9% mà bắt bẫy 58.3%**: con số accepted cao không chứng minh máy tốt, một phần là do tôi bấm giữ những box trông hợp lý (thiên kiến tự động hoá). 5/12 lỗi cài sẵn được "accept"; nếu tỉ lệ đó đúng cho lỗi thật của máy thì trong 568 box accepted vẫn còn lỗi chưa được sửa. QC (mục 7) xác nhận điều này: 3/5 ảnh mẫu còn lỗi.
+- **Cả 3 bẫy `wrong_class` đều là `person` bị đổi thành `bicycle`**, box vẫn nằm đúng trên một người thật. Ở img_022 tôi thấy nhãn `bicycle` là sai nhưng **xoá cả box** thay vì đổi về `person`, nên lỗi sai lớp biến thành lỗi bỏ sót (người đứng cạnh cột điện không còn box). Quy tắc rút ra: trước khi xoá một box phải xem nó đang ôm vật gì; có vật thật thì đổi nhãn, không xoá.
+- **Lượt sửa sau khi xem đáp án (`labels/batch_reviewed_round2.json`)**: sau khi chạy `review_stats` và đọc `traps_key.json`, tôi vào CVAT sửa lại một số chỗ (xoá box truck giả ở img_025, thêm box `person` ở img_022 nhưng đặt nhầm sang người khác). Chấm lại được 8/12, nhưng **đây không phải phép đo** vì đã biết vị trí bẫy. Phép đo hợp lệ là lượt 1: **7/12** (`labels/batch_reviewed.json`, `qc/review_stats.md`); mọi số trong báo cáo này đều lấy từ lượt 1.
 
 ## 4. Máy có đáng dùng không?
 
@@ -77,10 +79,14 @@ Việc cần làm tiếp: (1) duyệt lại cả 24 ảnh theo v1.1 với quy t�
 
 ## 8. Ghi chú cá nhân
 
-- **Dùng AI để làm bài:** Claude Code (Claude Opus) — cài môi trường (dùng lại venv có sẵn, Python 3.15 + torch CUDA), chạy các script Part 2–6 (`prelabel`, `sam2_points`, `threshold_sweep`, `merge_prelabels`, `inject_traps`, `review_stats`, `build_release`, `qc_sample`, `qc_report`), tạo Project/Task CVAT, import / export nhãn qua CVAT, nháp nhận xét `model_log.csv` từ ảnh `viz/`, nháp CAL-02/CAL-03, điền số liệu vào REPORT và diễn đạt thành câu các ý mình trả lời (nguyên nhân bẫy lọt, quyết định Rework, 3 quy tắc, máy có đáng dùng). **Không** dùng AI để gán gold hay review batch (tự làm trong CVAT). Cách kiểm tra: so mọi con số với `review_stats.md`, `threshold_sweep.md`, `qc_report_auto.md`; mở ảnh `masks/` và `viz/` đối chiếu nhận xét.
-- Gold có bị nhiễm không? Không: model chỉ chạy lên ảnh gold (`--split all`) sau khi đã export `gold_manual.json`.
-- Máy: macOS, Apple Silicon, RAM 24 GB, GPU Apple MPS. CVAT chạy Docker **v2.82.1** (image `v2.81.0` không có bản arm64 nên dùng image `dev` sẵn có). Vướng mắc: máy chỉ có Python 3.14 nên dùng `uv` tạo venv 3.12; YOLOE lỗi thiếu `clip` (venv uv không có pip), phải cài tay `git+https://github.com/ultralytics/CLIP.git`; Task `batch-review` lúc đầu tạo ngoài Project nên import báo "Label 'motorbike' is not registered", đã chuyển Task vào Project.
-- Dùng cache `data/cache/` thay vì tự chạy? Không (chỉ đọc cache YOLOE để tìm ứng viên xe ba bánh cho Part 5).
-- Lỗi / bug script đã gặp: không sửa script. YOLOE lần đầu tự cài CLIP (34 s); cảnh báo `torch.jit.load` trên Python 3.14+ không ảnh hưởng kết quả.
-- Một điều làm khác lần sau: theo đủ 4 bước checklist và dành ~2–3 phút/ảnh thay vì 0.83 phút/ảnh.
-
+- **Dùng AI để làm bài:** Claude Code (Claude Opus 5.5) trong VS Code. Theo tôi, mentor đã đồng ý cho dùng AI viết hộ phần phân tích.
+  - *Claude làm:* tạo venv Python 3.12 bằng `uv`, tải model, cài CVAT Docker; chạy các script Part 2–6 (`prelabel`, `threshold_sweep`, `merge_prelabels`, `inject_traps`, `review_stats`, `sam2_points`, `build_release`, `qc_sample`, `qc_report`, `check_submission`); commit / push git; chọn điểm click SAM (Part 5); xem 5 ảnh QC và điền `qc_review.csv`; soạn `calibration_decisions.csv`, `guideline_v1.1_calibrated.md` và phần chữ của REPORT.
+  - *Tôi tự làm:* gán tay 4 ảnh gold, review 24 ảnh batch trong CVAT (cả lượt 1 và lượt sửa round2), bấm giờ, viết nhận xét `model_log.csv` (Claude chỉ sửa lỗi chính tả / định dạng).
+  - *Ảnh đã gửi cho AI (dịch vụ đám mây):* 1 ảnh cắt người đi xe máy (khi đang gán gold), ảnh mask img_003, ảnh CVAT của img_022 (sau khi export, hỏi về bẫy); Claude cũng đọc 5 ảnh QC (img_003, 006, 014, 031, 035) và ảnh mask img_003 / 010 / 013.
+  - *Cách kiểm tra:* so mọi con số với `review_stats.md`, `threshold_sweep.md`, `qc_report_auto.md`, `time_log.csv`; mở ảnh `masks/` và `viz/` đối chiếu nhận xét.
+- **Gold có bị nhiễm không?** Không chạy model và không xem pre-label trước khi export `gold_manual.json` (model chỉ chạy `--split all` sau đó). Trong lúc gán gold, tôi gửi Claude một ảnh cắt người đi xe máy hỏi nên vẽ box nào; Claude chỉ trích quy tắc 4.1.4 (người và xe hai box riêng), không chỉ box trên ảnh. Ảnh đó có thể thuộc 4 ảnh gold nên ghi lại để người chấm đánh giá.
+- **Ảnh bẫy:** không mở `traps_key.json` trước khi export lượt 1. Sau khi có kết quả, tôi xem đáp án và sửa lại trong CVAT (round2, xem mục 3); kết quả bắt bẫy nộp là lượt 1.
+- **Máy:** macOS, Apple Silicon, RAM 24 GB, GPU Apple MPS; Python 3.12 (venv `uv`), torch 2.15.0, ultralytics 8.4.215. CVAT Docker **v2.82.1** (image `v2.81.0` không có bản arm64 nên dùng image `dev` sẵn có).
+- **Dùng cache `data/cache/`?** Không, tự chạy model.
+- **Lỗi / vướng mắc:** không sửa script. Máy chỉ có Python 3.14 nên dùng `uv` tạo venv 3.12; YOLOE lỗi thiếu `clip` (venv `uv` không có pip) nên phải cài tay `git+https://github.com/ultralytics/CLIP.git`; Task `batch-review` lúc đầu tạo ngoài Project nên import báo "Label 'motorbike' is not registered", đã chuyển Task vào Project.
+- **Lần sau làm khác:** theo đủ 4 bước checklist, dành ~2–3 phút/ảnh thay vì 0.83 phút/ảnh; không xoá box khi chưa xem nó ôm vật gì; tick `can_review` cho các ca thật sự phân vân khi gán gold.
